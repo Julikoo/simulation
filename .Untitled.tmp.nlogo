@@ -36,7 +36,7 @@ to go
 end
 
 to setup-Buyers
-  create-buyers random 100
+  create-buyers 1
   [
     set shape "person"
     set color white
@@ -55,7 +55,9 @@ end
 
 to buy
   ask buyers [
-    repeat groceryneed-long [fd 1]
+    repeat groceryneed-long [
+
+    ]
     repeat groceryneed-middle [fd 1]
     repeat groceryneed-short [fd 1]
   ]
