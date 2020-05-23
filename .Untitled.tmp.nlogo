@@ -1,15 +1,18 @@
+;;globals [longInput middleInput shortInput]
+
 ;;Einkäufer
 breed [buyers buyer]
 buyers-own [
-  groceryneed-long
-  groceryneed-middle
-  groceryneed-short
+  groceryneedLong
+  groceryneedMiddle
+  groceryneedShort
 ]
 
 ;;Lebensmittel
 breed [groceries grocery]
 groceries-own [
   quantity
+  daysUntilThrowAway
   type-number
   ttl
 ]
@@ -19,24 +22,24 @@ to setup
   clear-all
   reset-ticks
 
-  create-groceries 10
+  create-groceries 30
   [
     set shape "cow"
-    set color green
-    setxy 0 0
+    set color grey
+    setxy random-xcor random 15
+    set daysUntilThrowAway random 10
   ]
 end
 
 to go
   ask buyers [die]
   setup-Buyers
-  buy
 
   tick
 end
 
 to setup-Buyers
-  create-buyers 1
+  create-buyers random 10
   [
     set shape "person"
     set color white
@@ -47,22 +50,46 @@ end
 
 to create-groceryneed
   ask buyers [
-    set groceryneed-long random 10
-    set groceryneed-middle random 10
-    set groceryneed-short random 10
+    set groceryneedLong 0
+    buyLong groceryneedLong
+    set groceryneedMiddle random 10
+    buyMiddle groceryneedMiddle
+    set groceryneedShort random 10
+    buyShort groceryneedShort
   ]
 end
 
-to buy
-  ask buyers [
-    repeat groceryneed-long [
-
+to buyLong [q]
+  ask groceries with [daysUntilThrowAway >= longInput] [
+    set color green
+    if q != 0
+    [
+      ;set color white
+      set daysUntilThrowAway -1
+      set q (q - 1)
     ]
-    repeat groceryneed-middle [fd 1]
-    repeat groceryneed-short [fd 1]
   ]
 end
 
+to buyMiddle [q]
+  ask groceries with [daysUntilThrowAway >= middleInput] [
+    if q != 0
+    [set color white
+      set daysUntilThrowAway -1
+      set q (q - 1)
+    ]
+  ]
+end
+
+to buyShort [q]
+  ask groceries with [daysUntilThrowAway >= shortInput] [
+    if q != 0
+    [set color white
+      set daysUntilThrowAway -1
+      set q (q - 1)
+    ]
+  ]
+end
 
 
 
@@ -170,6 +197,81 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot count turtles"
+
+SLIDER
+569
+77
+741
+110
+longInput
+longInput
+0
+20
+9.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+569
+152
+741
+185
+middleInput
+middleInput
+0
+5
+3.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+569
+223
+741
+256
+shortInput
+shortInput
+0
+3
+1.0
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+570
+32
+743
+88
+Wie lange müssen Lebensmittel der Kategorie \"lang\" noch maximal haltbar sein.
+11
+0.0
+1
+
+TEXTBOX
+569
+112
+740
+168
+Wie lange müssen Lebensmittel der Kategorie \"mittel\" noch maximal haltbar sein.
+11
+0.0
+1
+
+TEXTBOX
+570
+168
+720
+224
+Wie lange müssen Lebensmittel der Kategorie \"kurz\" noch maximal haltbar sein.
+11
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
