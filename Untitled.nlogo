@@ -1,4 +1,15 @@
-;;globals [longInput middleInput shortInput]
+;;; Helpers
+globals [shortSteps middleSteps longSteps yDownS yDownM yDownL]
+
+;;; Categories
+breed [shortItems shortItem]
+breed [middleItems middleItem]
+breed [longItems longItem]
+
+;;; Actual Best-Before-Date as a increasing/decreasing number and the maximum Best-Before-Date
+shortItems-own [bbd bbdm]
+middleItems-own [bbd bbdm]
+longItems-own [bbd bbdm]
 
 ;;Einkäufer
 breed [buyers buyer]
@@ -8,38 +19,92 @@ buyers-own [
   groceryneedShort
 ]
 
-;;Lebensmittel
-breed [groceries grocery]
-groceries-own [
-  quantity
-  daysUntilThrowAway
-  type-number
-  ttl
-]
-
-
 to setup
-  clear-all
+  ;;; Init
+  ca
   reset-ticks
+  ask patches with [pycor > -10] [set pcolor blue]
+  set shortSteps 1
+  set middleSteps 1
+  set longSteps 1
+  set yDownS 3
+  set yDownM 3
+  set yDownL 3
 
-  create-groceries 30
-  [
+  ;;; First shortItem
+  create-shortItems 1
+  ask shortItems [
+    set shape "square"
+    set size 3
+    set bbdm 7
+    set bbd ( bbdm - random 5 )
+    set heading 0
+    setxy -22 22
+  ]
+
+  ;;; Further shortItems
+  ask shortItems [
+    while [ shortSteps < allCat ]
+    [ hatch-shortItems 1 [
+      set ycor ( ycor - yDownS )
+      set bbd ( bbdm - random 5 )
+    ]
+      set shortSteps ( shortSteps + 1 )
+      set yDownS ( yDownS + 3 ) ]
+  ]
+
+  ;;; Assign color for shortItems according to bbd
+  ask shortItems [if bbd = 0 [set color black]]
+  ask shortItems [if ( bbd > 0 ) and ( bbd <= bbdm * 0.5 ) [set color orange]]
+  ask shortItems [if bbd > bbdm * 0.5 [set color green]]
+
+  ;;; First middleItem
+  create-middleItems 1
+  ask middleItems [
     set shape "cow"
-    set color grey
-    setxy random-xcor random 15
-    set daysUntilThrowAway random 10
+    set size 3
+    set bbdm 14
+    set bbd ( bbdm - random 10 )
+    set heading 0
+    setxy -18 22
+  ]
+
+  ;;; Further middleItems
+  ask middleItems [
+    while [ middleSteps < allCat ]
+    [ hatch-middleItems 1 [
+      set ycor ( ycor - yDownM )
+      set bbd ( bbdm - random 10 )
+    ]
+      set middleSteps ( middleSteps + 1 )
+      set yDownM ( yDownM + 3 ) ]
+  ]
+
+  ;;; Assign color for middleItems according to bbd
+  ask middleItems [if bbd = 0 [set color black]]
+  ask middleItems [if ( bbd > 0 ) and ( bbd <= bbdm * 0.5 ) [set color orange]]
+  ask middleItems [if bbd > bbdm * 0.5 [set color green]]
+
+  ;;; First longItem
+  create-longItems 1
+  ask longItems [ set shape "box" set size 3 set bbd ( 10 + random 30 ) set heading 0 set color green setxy -14 22]
+
+  ;;; Further LongItems
+  ask longItems [
+    while [ longSteps < allCat ]
+    [hatch-longItems 1 [ set ycor ( ycor - yDownL ) ] set longSteps ( longSteps + 1 ) set yDownL ( yDownL + 3 ) ]
   ]
 end
 
 to go
   ask buyers [die]
   setup-Buyers
-
+  ;ask shortItems set bbd ( bbd - 1 )
   tick
 end
 
 to setup-Buyers
-  create-buyers random 10
+  create-buyers random 3
   [
     set shape "person"
     set color white
@@ -50,80 +115,52 @@ end
 
 to create-groceryneed
   ask buyers [
-    set groceryneedLong 0
+    set groceryneedLong 1
     buyLong groceryneedLong
-    set groceryneedMiddle random 10
+    set groceryneedMiddle 1
     buyMiddle groceryneedMiddle
-    set groceryneedShort random 10
+    set groceryneedShort 1
     buyShort groceryneedShort
   ]
 end
 
 to buyLong [q]
-  ask groceries with [daysUntilThrowAway >= longInput] [
+  ask longItems with [bbd >= longInput] [
     set color green
     if q != 0
     [
       ;set color white
-      set daysUntilThrowAway -1
+      set bbd -1
       set q (q - 1)
     ]
   ]
 end
 
 to buyMiddle [q]
-  ask groceries with [daysUntilThrowAway >= middleInput] [
+  ask middleItems with [bbd >= middleInput] [
     if q != 0
     [set color white
-      set daysUntilThrowAway -1
+      set bbd -1
       set q (q - 1)
     ]
   ]
 end
 
 to buyShort [q]
-  ask groceries with [daysUntilThrowAway >= shortInput] [
+  ask shortItems with [bbd >= shortInput] [
     if q != 0
     [set color white
-      set daysUntilThrowAway -1
+      set bbd -1
       set q (q - 1)
     ]
   ]
-end
-
-
-
-
-
-
-
-; Philips Code
-to setup-ressources
-  if (distancexy (0.8 * max-pxcor) (0.8 * max-pycor)) < 3
-  [ set type-number 1 ]
-
-  if (distancexy (0 * max-pxcor) (0.8 * max-pycor)) < 3
-  [ set type-number 2 ]
-
-  if (distancexy (-0.8 * max-pxcor) (0.8 * max-pycor)) < 3
-  [ set type-number 3 ]
-
-  if type-number > 0
-  [ set quantity one-of [1 2] ]
-end
-
-to recolor-patch
-  if quantity > 0
-    [ if type-number = 1 [ set pcolor red ]
-      if type-number = 2 [ set pcolor yellow  ]
-      if type-number = 3 [ set pcolor blue ] ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 132
 28
-543
-440
+803
+700
 -1
 -1
 13.0
@@ -136,10 +173,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--15
-15
--15
-15
+-25
+25
+-25
+25
 0
 0
 1
@@ -272,6 +309,21 @@ Wie lange müssen Lebensmittel der Kategorie \"kurz\" noch maximal haltbar sein.
 11
 0.0
 1
+
+SLIDER
+614
+358
+786
+391
+allCat
+allCat
+1
+10
+6.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
