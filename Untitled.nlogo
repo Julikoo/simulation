@@ -1,5 +1,5 @@
 ;;; Helpers
-globals [shortSteps middleSteps longSteps yDownS yDownM yDownL]
+globals [steps maxMarketX maxMarketY catSizeX catSizeY maxItemsPerCat spawnX spawnY]
 
 ;;; Categories
 breed [shortItems shortItem]
@@ -24,112 +24,86 @@ to setup
   ca
   reset-ticks
   ask patches with [pycor > -10] [set pcolor blue]
-  set shortSteps 1
-  set middleSteps 1
-  set longSteps 1
-  set yDownS 3
-  set yDownM 3
-  set yDownL 3
+  set steps 1
+  set spawnX -23
+  set spawnY 23
 
   ;;; First shortItem
   create-shortItems 1
-  ask shortItems [
-    set shape "square"
-    set size 3
+  ask shortItem 0 [
+    set shape "cow"
+    set size 2
     set bbdm 7
     set bbd ( bbdm - random 5 )
     set heading 0
-    setxy -22 22
+    setxy spawnX spawnY
   ]
 
-  ;;; Further shortItems
-  ask shortItems [
-    while [ shortSteps < allCat ]
-    [ hatch-shortItems 1 [
-      set ycor ( ycor - yDownS )
-      set bbd ( bbdm - random 5 )
-    ]
-      set shortSteps ( shortSteps + 1 )
-      set yDownS ( yDownS + 3 ) ]
-  ]
-
-  ;;; Assign color for shortItems according to bbd
-  ask shortItems [if bbd = 0 [set color black]]
-  ask shortItems [if ( bbd > 0 ) and ( bbd <= bbdm * 0.5 ) [set color orange]]
-  ask shortItems [if bbd > bbdm * 0.5 [set color green]]
+  getMarketSize
+  getShortItems
 
   ;;; First middleItem
   create-middleItems 1
-  ask middleItems [
-    set shape "cow"
-    set size 3
+  ask middleItem allCat [
+    set shape "cheese"
+    set size 2
     set bbdm 14
     set bbd ( bbdm - random 10 )
     set heading 0
-    setxy -18 22
+    setxy ( -23 + 8 * 2 ) 23
   ]
 
-  ;;; Further middleItems
-  ask middleItems [
-    while [ middleSteps < allCat ]
-    [ hatch-middleItems 1 [
-      set ycor ( ycor - yDownM )
-      set bbd ( bbdm - random 10 )
-    ]
-      set middleSteps ( middleSteps + 1 )
-      set yDownM ( yDownM + 3 ) ]
-  ]
-
-  ;;; Assign color for middleItems according to bbd
-  ask middleItems [if bbd = 0 [set color black]]
-  ask middleItems [if ( bbd > 0 ) and ( bbd <= bbdm * 0.5 ) [set color orange]]
-  ask middleItems [if bbd > bbdm * 0.5 [set color green]]
+  getMiddleItems
 
   ;;; First longItem
   create-longItems 1
-  ask longItems [ set shape "box" set size 3 set bbd ( 10 + random 30 ) set heading 0 set color green setxy -14 22]
-
-  ;;; Further LongItems
-  ask longItems [
-    while [ longSteps < allCat ]
-    [hatch-longItems 1 [ set ycor ( ycor - yDownL ) ] set longSteps ( longSteps + 1 ) set yDownL ( yDownL + 3 ) ]
+  ask longItem ( allCat * 2 ) [
+    set shape "flatBox"
+    set size 2
+    set bbdm 151
+    set bbd ( 30 + (random 30) * 4 )
+    set heading 0
+    setxy ( -23 + 8 * 4 ) 23
   ]
+  getLongItems
+  checkBbdColor
 end
 
 to go
   ask buyers [die]
+  eachDay
+  checkBbdColor
   setup-Buyers
-  ;ask shortItems set bbd ( bbd - 1 )
   tick
 end
 
 to setup-Buyers
-  create-buyers random 3
+  create-buyers random 5
   [
     set shape "person"
     set color white
-    setxy random-xcor -15
+    set size 2
+    setxy random-xcor -20
   ]
   create-groceryneed
 end
 
 to create-groceryneed
   ask buyers [
-    set groceryneedLong 1
+    set groceryneedLong random 3
     buyLong groceryneedLong
-    set groceryneedMiddle 1
+    set groceryneedMiddle random 3
     buyMiddle groceryneedMiddle
-    set groceryneedShort 1
+    set groceryneedShort random 3
     buyShort groceryneedShort
   ]
 end
 
 to buyLong [q]
   ask longItems with [bbd >= longInput] [
-    set color green
     if q != 0
     [
-      ;set color white
+      set color white
       set bbd -1
       set q (q - 1)
     ]
@@ -154,6 +128,101 @@ to buyShort [q]
       set q (q - 1)
     ]
   ]
+end
+
+;;; Check for displaying correct color according to bbd value to bbdm value
+to checkBbdColor
+  ask shortItems [if bbd = 0 [set color black]]
+  ask shortItems [if ( bbd > 0 ) and ( bbd <= bbdm * 0.5 ) [set color orange]]
+  ask shortItems [if bbd > bbdm * 0.5 [set color green]]
+
+  ask middleItems [if bbd = 0 [set color black]]
+  ask middleItems [if ( bbd > 0 ) and ( bbd <= bbdm * 0.5 ) [set color orange]]
+  ask middleItems [if bbd > bbdm * 0.5 [set color green]]
+
+  ask longItems [if bbd = 0 [set color black]]
+  ask longItems [if ( bbd > 0 ) and ( bbd <= bbdm * 0.2 ) [set color orange]]
+  ask longItems [if bbd > bbdm * 0.2 [set color green]]
+end
+
+;;; bbd goes down by 1
+to eachDay
+  ask shortItems with [ bbd > 0 ] [ set bbd bbd - 1 ]
+  ask middleItems with [ bbd > 0 ] [ set bbd bbd - 1 ]
+  ask longItems with [ bbd > 0 ] [ set bbd bbd - 1 ]
+end
+  ;;; Get Market size
+to getMarketSize
+
+  set maxMarketX max [pxcor] of patches with [pcolor = blue]
+  show maxMarketX
+  set maxMarketY min [pycor] of patches with [pcolor = blue]
+  show maxMarketY
+  set catSizeX floor ( ( ( ( 25 + abs maxMarketX ) - 2 * 2 ) / 3 ) / [size] of shortItem 0 )
+  show catSizeX
+  set catSizeY floor ( ( ( 25 + abs maxMarketY  ) - 2 * 2 ) / [size] of shortItem 0 )
+  show catSizeY
+  set maxItemsPerCat catSizeX * catSizeY
+  show maxItemsPerCat
+
+end
+
+;;; Further shortItems
+to getShortItems
+  set spawnY ( 23 - 2 )
+
+  ask shortItems [
+    while [ steps < allCat ] [
+      hatch-shortItems 1 [
+        if spawnY <= maxMarketY [ set spawnX ( spawnX + 2 ) set spawnY 23 ]
+        setxy spawnX spawnY
+        set bbd ( bbdm - random 5 )
+      ]
+      set steps ( steps + 1 )
+      set spawnY ( spawnY - 2 )
+    ]
+  ]
+
+end
+
+;;; Further middleItems
+to getMiddleItems
+  set steps 1
+  set spawnX ( -23 + 8 * 2 )
+  set spawnY ( 23 - 2 )
+
+  ask middleItems [
+    while [ steps < allCat ] [
+      hatch-middleItems 1 [
+        if spawnY <= maxMarketY [ set spawnX ( spawnX + 2 ) set spawnY 23 ]
+        setxy spawnX spawnY
+        set bbd ( bbdm - random 10 )
+      ]
+      set steps ( steps + 1 )
+      set spawnY ( spawnY - 2 )
+    ]
+  ]
+
+end
+
+;;; Further longItems
+to getLongItems
+  set steps 1
+  set spawnX ( -23 + 8 * 4 )
+  set spawnY ( 23 - 2 )
+
+  ask longItems [
+    while [ steps < allCat ] [
+      hatch-longItems 1 [
+        if spawnY <= maxMarketY [ set spawnX ( spawnX + 2 ) set spawnY 23 ]
+        setxy spawnX spawnY
+        set bbd ( 30 + (random 30) * 4 )
+      ]
+      set steps ( steps + 1 )
+      set spawnY ( spawnY - 2 )
+    ]
+  ]
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -236,10 +305,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot count turtles"
 
 SLIDER
-569
-77
-741
-110
+841
+248
+1013
+281
 longInput
 longInput
 0
@@ -251,10 +320,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-569
-163
-741
-196
+845
+334
+1017
+367
 middleInput
 middleInput
 0
@@ -266,10 +335,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-570
-249
-742
-282
+847
+413
+1019
+446
 shortInput
 shortInput
 0
@@ -281,49 +350,49 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-570
-37
-743
-93
+839
+193
+1012
+249
 Wie lange müssen Lebensmittel der Kategorie \"lang\" noch maximal haltbar sein.
 11
 0.0
 1
 
 TEXTBOX
-569
-123
-740
-179
-Wie lange müssen Lebensmittel der Kategorie \"mittel\" noch maximal haltbar sein.
-11
-0.0
-1
-
-TEXTBOX
-571
-209
-748
-265
+848
+373
+1025
+429
 Wie lange müssen Lebensmittel der Kategorie \"kurz\" noch maximal haltbar sein.
 11
 0.0
 1
 
 SLIDER
-614
-358
-786
-391
+848
+456
+1020
+489
 allCat
 allCat
 1
-10
-6.0
+112
+112.0
 1
 1
 NIL
 HORIZONTAL
+
+TEXTBOX
+845
+294
+1016
+350
+Wie lange müssen Lebensmittel der Kategorie \"mittel\" noch maximal haltbar sein.
+11
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -408,6 +477,16 @@ Circle -16777216 true false 135 90 30
 Line -16777216 false 150 105 195 60
 Line -16777216 false 150 105 105 60
 
+can
+false
+0
+Polygon -7500403 true true 150 286 118 287 79 283 49 272 32 255 49 236 78 226 117 221 150 220 150 287
+Polygon -7500403 true true 150 286 182 287 221 283 251 272 268 255 251 236 222 226 183 221 150 220 150 287
+Polygon -7500403 true true 150 83 118 84 79 80 49 69 32 52 49 33 78 23 117 18 150 17 150 84
+Polygon -7500403 true true 150 83 182 84 221 80 251 69 268 52 251 33 222 23 183 18 150 17 150 84
+Polygon -7500403 true true 35 78 42 94 50 105 46 117 41 133 50 149 41 166 36 182 45 209 36 228 32 254 152 258 151 54 32 53
+Polygon -7500403 true true 265 78 258 94 250 105 254 117 259 133 250 149 259 166 264 182 255 209 264 228 268 254 148 258 149 54 268 53
+
 car
 false
 0
@@ -417,6 +496,15 @@ Circle -16777216 true false 30 180 90
 Polygon -16777216 true false 162 80 132 78 134 135 209 135 194 105 189 96 180 89
 Circle -7500403 true true 47 195 58
 Circle -7500403 true true 195 195 58
+
+cheese
+false
+0
+Circle -16777216 true false 54 69 42
+Circle -16777216 true false 131 146 67
+Polygon -7500403 true true 30 29 93 29 103 39 127 44 149 29 202 31 201 55 208 74 224 91 244 99 269 97 269 209 254 224 269 239 269 269 179 269 163 253 143 244 122 247 104 254 89 269 29 269 31 257 53 251 65 226 59 205 49 195 30 190
+Circle -13345367 true false 90 105 30
+Circle -13345367 true false 174 159 42
 
 circle
 false
@@ -486,6 +574,12 @@ Rectangle -7500403 true true 60 15 75 300
 Polygon -7500403 true true 90 150 270 90 90 30
 Line -7500403 true 75 135 90 135
 Line -7500403 true 75 45 90 45
+
+flatbox
+false
+0
+Polygon -7500403 true true 150 270 270 180 270 120 150 210 30 120 30 180 150 270
+Polygon -7500403 true true 30 105 150 30 270 105 150 195 30 105
 
 flower
 false
@@ -569,6 +663,58 @@ Rectangle -1 true true 65 221 80 296
 Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
 Polygon -7500403 true false 276 85 285 105 302 99 294 83
 Polygon -7500403 true false 219 85 210 105 193 99 201 83
+
+snowflake
+false
+0
+Rectangle -7500403 true true 150 270 165 285
+Rectangle -7500403 true true 165 285 180 300
+Rectangle -7500403 true true 135 180 150 270
+Rectangle -7500403 true true 180 195 195 210
+Rectangle -7500403 true true 195 210 210 240
+Rectangle -7500403 true true 210 210 225 225
+Rectangle -7500403 true true 165 180 180 195
+Rectangle -7500403 true true 150 165 165 180
+Rectangle -7500403 true true 150 135 165 150
+Rectangle -7500403 true true 165 150 255 165
+Rectangle -7500403 true true 180 135 195 180
+Rectangle -7500403 true true 210 135 225 180
+Rectangle -7500403 true true 255 135 270 150
+Rectangle -7500403 true true 270 120 285 135
+Rectangle -7500403 true true 255 165 270 180
+Rectangle -7500403 true true 270 180 285 195
+Rectangle -7500403 true true 165 120 180 135
+Rectangle -7500403 true true 180 105 195 120
+Rectangle -7500403 true true 195 75 210 105
+Rectangle -7500403 true true 210 90 225 105
+Rectangle -7500403 true true 135 45 150 135
+Rectangle -7500403 true true 150 30 165 45
+Rectangle -7500403 true true 165 15 180 30
+Rectangle -7500403 true true 120 195 165 210
+Rectangle -7500403 true true 120 225 165 240
+Rectangle -7500403 true true 120 270 135 285
+Rectangle -7500403 true true 105 285 120 300
+Rectangle -7500403 true true 120 105 165 120
+Rectangle -7500403 true true 120 75 165 90
+Rectangle -7500403 true true 120 30 135 45
+Rectangle -7500403 true true 105 15 120 30
+Rectangle -7500403 true true 30 150 120 165
+Rectangle -7500403 true true 15 165 30 180
+Rectangle -7500403 true true 0 180 15 195
+Rectangle -7500403 true true 15 135 30 150
+Rectangle -7500403 true true 0 120 15 135
+Rectangle -7500403 true true 120 165 135 180
+Rectangle -7500403 true true 120 135 135 150
+Rectangle -7500403 true true 90 135 105 180
+Rectangle -7500403 true true 60 135 75 180
+Rectangle -7500403 true true 105 180 120 195
+Rectangle -7500403 true true 90 195 105 210
+Rectangle -7500403 true true 75 210 90 240
+Rectangle -7500403 true true 60 210 75 225
+Rectangle -7500403 true true 105 120 120 135
+Rectangle -7500403 true true 90 105 105 120
+Rectangle -7500403 true true 75 75 90 105
+Rectangle -7500403 true true 60 90 75 105
 
 square
 false
