@@ -55,7 +55,7 @@ end
 
 ;;; Create set of Buyers
 to setup-Buyers
-  create-buyers random 5
+  create-buyers buyersQuantity
   [
     set shape "person"
     set color white
@@ -68,7 +68,7 @@ end
 ;;; Assign value for each Category, reflecting the need of an item within this Category
 to create-groceryneed
   ask buyers [
-    set groceryneedLong buyersQuantit
+    set groceryneedLong random 10
     buyLong groceryneedLong
     set groceryneedMiddle random 10
     buyMiddle groceryneedMiddle
@@ -246,10 +246,10 @@ to spawnFirstLongItem
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-132
-28
-803
-700
+586
+39
+1257
+711
 -1
 -1
 13.0
@@ -273,10 +273,10 @@ ticks
 30.0
 
 BUTTON
-28
-33
-101
-66
+20
+156
+570
+191
 NIL
 setup
 NIL
@@ -290,10 +290,10 @@ NIL
 1
 
 BUTTON
-32
-103
-95
-136
+20
+509
+560
+544
 NIL
 go
 NIL
@@ -306,29 +306,11 @@ NIL
 NIL
 0
 
-PLOT
-837
-31
-1037
-181
-plot
-time
-ressources
-0.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 0 -16777216 true "" "plot count turtles"
-
 SLIDER
-841
-248
-1013
-281
+23
+445
+195
+478
 longInput
 longInput
 1
@@ -340,10 +322,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-842
-346
-1014
-379
+206
+445
+378
+478
 middleInput
 middleInput
 1
@@ -355,10 +337,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-848
-462
-1020
-495
+388
+445
+560
+478
 shortInput
 shortInput
 1
@@ -370,30 +352,30 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-839
-193
-1012
-249
-Wie lange müssen Lebensmittel der Kategorie \"lang\" noch maximal haltbar sein.
+25
+386
+198
+442
+Wie lange müssen Lebensmittel der Kategorie \"lang\" noch maximal haltbar sein damit sie gekauft werden.
 11
 0.0
 1
 
 TEXTBOX
-848
-403
-1025
-459
-Wie lange müssen Lebensmittel der Kategorie \"kurz\" noch maximal haltbar sein.
+389
+386
+566
+442
+Wie lange müssen Lebensmittel der Kategorie \"kurz\" noch maximal haltbar sein damit sie gekauft werden.
 11
 0.0
 1
 
 SLIDER
-849
-511
-1021
-544
+206
+103
+378
+136
 allCat
 allCat
 1
@@ -405,29 +387,202 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-845
-294
-1016
-350
-Wie lange müssen Lebensmittel der Kategorie \"mittel\" noch maximal haltbar sein.
+208
+386
+379
+442
+Wie lange müssen Lebensmittel der Kategorie \"mittel\" noch maximal haltbar sein damit sie gekauft werden.
 11
 0.0
 1
 
 SLIDER
-850
-561
-1022
-594
+209
+338
+381
+371
 buyersQuantity
 buyersQuantity
 0
 20
-50.0
+5.0
 1
 1
 NIL
 HORIZONTAL
+
+TEXTBOX
+210
+305
+383
+334
+Anzahl der Menschen, die an diesem Tag einkaufen gehen
+11
+0.0
+1
+
+TEXTBOX
+25
+229
+360
+257
+Einstellung für pro Tag
+15
+0.0
+1
+
+TEXTBOX
+26
+256
+241
+282
+Jeder tick repräsentiert einen Tag.
+11
+0.0
+1
+
+TEXTBOX
+210
+86
+425
+112
+Anzahl der Lebensmittel
+11
+0.0
+1
+
+TEXTBOX
+23
+38
+551
+61
+Einstellung für den Setup des Supermarktes
+15
+0.0
+1
+
+TEXTBOX
+22
+585
+523
+618
+Einstellung für die Nachlieferung von Lebensmittel
+15
+0.0
+1
+
+BUTTON
+22
+678
+562
+713
+NIL
+restock
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+1289
+89
+1778
+235
+Rind - kurz haltbares Lebensmittel (maximal 7 Tage haltbar)\nKäse - mittel lange haltbares Lebensmittel (maximal 14 Tage haltbar)\nBox - lang haltbares Lebensmittel (maximal 151 Tage haltbar)\n\ngrün - Lebensmittel ist noch lange haltbar\norange - Lebensmittel läuft bald ab\nschwarz - Lebensmittel ist abgelaufen und wurde weggeworfen\n\nweiß - Lebensmittel wurde gekauft
+11
+0.0
+1
+
+MONITOR
+1280
+588
+1540
+634
+Abfall - mittellang haltbare Lebensmittel
+count middleItems with [bbd = 0]
+17
+1
+11
+
+MONITOR
+1558
+586
+1836
+632
+Verkauft - mittellang haltbare Lebensmittel
+count middleItems with [bbd = -1]
+17
+1
+11
+
+MONITOR
+1280
+513
+1540
+559
+Abfall - kurz haltbare Lebensmittel
+count shortItems with [bbd = 0]
+17
+1
+11
+
+MONITOR
+1558
+512
+1837
+558
+Abfall - kurz haltbare Lebensmittel
+count shortItems with [bbd = -1]
+17
+1
+11
+
+MONITOR
+1280
+660
+1540
+706
+Abfall - lang haltbare Lebensmittel
+count longItems with [bbd = 0]
+17
+1
+11
+
+MONITOR
+1559
+659
+1837
+705
+Verkauft - lang haltbare Lebensmittel
+count longItems with [bbd = -1]
+17
+1
+11
+
+TEXTBOX
+1283
+472
+1759
+497
+Auswertung - Abfall und verkaufte Produkte 
+15
+0.0
+1
+
+TEXTBOX
+1288
+55
+1503
+81
+Legende
+15
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
