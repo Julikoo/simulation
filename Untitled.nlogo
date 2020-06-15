@@ -55,7 +55,7 @@ end
 
 ;;; Create set of Buyers
 to setup-Buyers
-  create-buyers random 5
+  create-buyers buyersQuantity
   [
     set shape "person"
     set color white
@@ -68,11 +68,11 @@ end
 ;;; Assign value for each Category, reflecting the need of an item within this Category
 to create-groceryneed
   ask buyers [
-    set groceryneedLong longInput
+    set groceryneedLong random 10
     buyLong groceryneedLong
-    set groceryneedMiddle middleInput
+    set groceryneedMiddle random 10
     buyMiddle groceryneedMiddle
-    set groceryneedShort longInput
+    set groceryneedShort random 10
     buyShort groceryneedShort
   ]
 end
@@ -331,9 +331,9 @@ SLIDER
 281
 longInput
 longInput
-0
-20
-20.0
+1
+150
+58.0
 1
 1
 NIL
@@ -346,9 +346,9 @@ SLIDER
 379
 middleInput
 middleInput
-0
-5
-5.0
+1
+14
+6.0
 1
 1
 NIL
@@ -361,9 +361,9 @@ SLIDER
 495
 shortInput
 shortInput
-0
-3
-3.0
+1
+7
+1.0
 1
 1
 NIL
@@ -413,6 +413,21 @@ Wie lange müssen Lebensmittel der Kategorie \"mittel\" noch maximal haltbar sei
 11
 0.0
 1
+
+SLIDER
+850
+561
+1022
+594
+buyersQuantity
+buyersQuantity
+0
+20
+20.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
