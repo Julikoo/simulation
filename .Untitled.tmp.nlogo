@@ -296,7 +296,7 @@ BUTTON
 136
 NIL
 go
-NIL
+T
 1
 T
 OBSERVER
@@ -333,7 +333,7 @@ longInput
 longInput
 0
 20
-20.0
+1.0
 1
 1
 NIL
@@ -348,7 +348,7 @@ middleInput
 middleInput
 0
 5
-5.0
+1.0
 1
 1
 NIL
@@ -363,7 +363,7 @@ shortInput
 shortInput
 0
 3
-3.0
+1.0
 1
 1
 NIL
