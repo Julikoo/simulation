@@ -244,6 +244,13 @@ to spawnFirstLongItem
     setxy ( -23 + 8 * 4 ) 23
   ]
 end
+
+to restock
+  ask shortItems with [bbd = 0 or bbd = -1] [ set bbd ( bbdm - random 5 ) ]
+  ask middleItems with [bbd = 0 or bbd = -1] [ set bbd ( bbdm - random 10 ) ]
+  ask longItems with [bbd = 0 or bbd = -1] [ set bbd ( bbdm - ( 30 + (random 30) * 4 ) ) ]
+  checkBbdColor
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 132
@@ -423,11 +430,38 @@ buyersQuantity
 buyersQuantity
 0
 20
-20.0
+3.0
 1
 1
 NIL
 HORIZONTAL
+
+BUTTON
+29
+169
+101
+202
+NIL
+restock
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+27
+211
+125
+286
+Restocks all sold(white) and expired(black) items for all Categories
+11
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
