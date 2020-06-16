@@ -1,5 +1,5 @@
 ;;; Helpers
-globals [steps maxMarketX maxMarketY catSizeX catSizeY maxItemsPerCat spawnX spawnY]
+globals [steps maxMarketX maxMarketY catSizeX catSizeY maxItemsPerCat spawnX spawnY countExpiriedShort countExpiriedMiddle countExpiriedLong countPurchasedShort countPurchasedMiddle countPurchasedLong countSaveExShort countSaveExMiddle countSaveExLong countSavePurShort countSavePurMiddle countSavePurLong]
 
 ;;; Categories
 breed [shortItems shortItem]
@@ -25,11 +25,8 @@ to setup
   reset-ticks
   ;;; Set patch color for market space
   ask patches with [pycor > -10] [set pcolor blue]
-  ;;; init helpers
-  set steps 1
-  set spawnX -23
-  set spawnY 23
-
+  ;;; init helper variables
+  initHelpers
   ;;; Create all shortItems
   spawnFirstShortItem
   getMarketSize
@@ -44,12 +41,13 @@ to setup
   checkBbdColor
 end
 
-;;; Create buyers and let them buy items according to their behaviour
+;;; Create buyers and let them buy items according to their behaviour and count how many items expiried and were purchased
 to go
   ask buyers [die]
   eachDay
   checkBbdColor
   setup-Buyers
+  countingItems
   tick
 end
 
@@ -250,6 +248,42 @@ to restock
   ask middleItems with [bbd = 0 or bbd = -1] [ set bbd ( bbdm - random 10 ) ]
   ask longItems with [bbd = 0 or bbd = -1] [ set bbd ( bbdm - ( 30 + (random 30) * 4 ) ) ]
   checkBbdColor
+  ;;; save currents counts of expiried and purchased Items so far
+  set countSaveExShort countExpiriedShort
+  set countSaveExMiddle countExpiriedMiddle
+  set countSaveExLong countExpiriedLong
+  set countSavePurShort countPurchasedShort
+  set countSavePurMiddle countPurchasedMiddle
+  set countSavePurLong countPurchasedLong
+end
+
+to countingItems
+  ;;; Counting expiried Items
+  set countExpiriedShort ( countSaveExShort + ( count shortItems with [bbd = 0] ) )
+  set countExpiriedMiddle ( countSaveExMiddle + ( count middleItems with [bbd = 0] ) )
+  set countExpiriedLong ( countSaveExLong + ( count longItems with [bbd = 0] ) )
+  ;;; Counting Purchased Items
+  set countPurchasedShort ( countSavePurShort + ( count shortItems with [bbd = -1] ) )
+  set countPurchasedMiddle ( countSavePurMiddle + ( count middleItems with [bbd = -1] ) )
+  set countPurchasedLong ( countSavePurLong + ( count longItems with [bbd = -1] ) )
+end
+
+to initHelpers
+  set steps 1
+  set spawnX -23
+  set spawnY 23
+  set countExpiriedShort 0
+  set countExpiriedMiddle 0
+  set countExpiriedLong 0
+  set countPurchasedShort 0
+  set countPurchasedMiddle 0
+  set countPurchasedLong 0
+  set countSaveExShort 0
+  set countSaveExMiddle 0
+  set countSaveExLong 0
+  set countSavePurShort 0
+  set countSavePurMiddle 0
+  set countSavePurLong 0
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -322,7 +356,7 @@ longInput
 longInput
 1
 150
-150.0
+50.0
 1
 1
 NIL
@@ -412,7 +446,7 @@ buyersQuantity
 buyersQuantity
 0
 20
-5.0
+1.0
 1
 1
 NIL
@@ -511,7 +545,7 @@ MONITOR
 1540
 633
 Abfall - mittellang haltbare Lebensmittel
-count middleItems with [bbd = 0]
+countExpiriedMiddle
 17
 1
 11
@@ -522,7 +556,7 @@ MONITOR
 1836
 631
 Verkauft - mittellang haltbare Lebensmittel
-count middleItems with [bbd = -1]
+countPurchasedMiddle
 17
 1
 11
@@ -533,7 +567,7 @@ MONITOR
 1540
 558
 Abfall - kurz haltbare Lebensmittel
-count shortItems with [bbd = 0]
+countExpiriedShort
 17
 1
 11
@@ -544,7 +578,7 @@ MONITOR
 1837
 557
 Verkauft - kurz haltbare Lebensmittel
-count shortItems with [bbd = -1]
+countPurchasedShort
 17
 1
 11
@@ -555,7 +589,7 @@ MONITOR
 1540
 705
 Abfall - lang haltbare Lebensmittel
-count longItems with [bbd = 0]
+countExpiriedLong
 17
 1
 11
@@ -566,7 +600,7 @@ MONITOR
 1837
 704
 Verkauft - lang haltbare Lebensmittel
-count longItems with [bbd = -1]
+countPurchasedLong
 17
 1
 11
