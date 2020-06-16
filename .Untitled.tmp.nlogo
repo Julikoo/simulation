@@ -244,13 +244,6 @@ to spawnFirstLongItem
     setxy ( -23 + 8 * 4 ) 23
   ]
 end
-
-to restock
-  ask shortItems with [bbd = 0 or bbd = -1] [ set bbd ( bbdm - random 5 ) ]
-  ask middleItems with [bbd = 0 or bbd = -1] [ set bbd ( bbdm - random 10 ) ]
-  ask longItems with [bbd = 0 or bbd = -1] [ set bbd ( bbdm - ( 30 + (random 30) * 4 ) ) ]
-  checkBbdColor
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 586
@@ -314,15 +307,15 @@ NIL
 0
 
 SLIDER
-389
+23
 445
-561
+195
 478
 longInput
 longInput
 1
 150
-150.0
+58.0
 1
 1
 NIL
@@ -344,9 +337,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-23
+388
 445
-195
+560
 478
 shortInput
 shortInput
@@ -359,9 +352,9 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-390
+25
 386
-563
+198
 442
 Wie lange müssen Lebensmittel der Kategorie \"lang\" noch maximal haltbar sein damit sie gekauft werden.
 11
@@ -369,9 +362,9 @@ Wie lange müssen Lebensmittel der Kategorie \"lang\" noch maximal haltbar sein 
 1
 
 TEXTBOX
-25
+389
 386
-202
+566
 442
 Wie lange müssen Lebensmittel der Kategorie \"kurz\" noch maximal haltbar sein damit sie gekauft werden.
 11
