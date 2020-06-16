@@ -509,7 +509,7 @@ MONITOR
 1280
 588
 1540
-634
+633
 Abfall - mittellang haltbare Lebensmittel
 count middleItems with [bbd = 0]
 17
@@ -520,7 +520,7 @@ MONITOR
 1558
 586
 1836
-632
+631
 Verkauft - mittellang haltbare Lebensmittel
 count middleItems with [bbd = -1]
 17
@@ -531,7 +531,7 @@ MONITOR
 1280
 513
 1540
-559
+558
 Abfall - kurz haltbare Lebensmittel
 count shortItems with [bbd = 0]
 17
@@ -542,8 +542,8 @@ MONITOR
 1558
 512
 1837
-558
-Abfall - kurz haltbare Lebensmittel
+557
+Verkauft - kurz haltbare Lebensmittel
 count shortItems with [bbd = -1]
 17
 1
@@ -553,7 +553,7 @@ MONITOR
 1280
 660
 1540
-706
+705
 Abfall - lang haltbare Lebensmittel
 count longItems with [bbd = 0]
 17
@@ -564,7 +564,7 @@ MONITOR
 1559
 659
 1837
-705
+704
 Verkauft - lang haltbare Lebensmittel
 count longItems with [bbd = -1]
 17
